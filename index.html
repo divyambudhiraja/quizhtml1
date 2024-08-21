@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Interactive Quiz</title>
+    <style>
+        body {
+            font-family: 'Verdana', sans-serif;
+            background-color: #f0f8ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            color: #333;
+            margin-top: 20px;
+        }
+
+        .score-section {
+            display: flex;
+            justify-content: space-between;
+            width: 300px;
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .question h3 {
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .options-container {
+            margin-bottom: 20px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #e6f7ff;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .option input {
+            margin-right: 10px;
+        }
+
+        button {
+            display: block;
+            width: 300px;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #results {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Quiz</h1>
+    <div class="score-section">
+        <p id="current-score">Current Score: 0</p>
+        <p id="high-score">Highest Score: 0</p>
+    </div>
+    <button id="start-quiz">Start Quiz</button>
+    <div id="quiz" style="display: none;"></div>
+    <button id="submit" style="display: none;">Submit</button>
+    <div id="results"></div>
+
+    <script>
+        const quizData = [
+            {
+                question: "What does HTML stand for?",
+                options: [
+                    "Hyper Text Markup Language", 
+                    "Home Tool Markup Language", 
+                    "Hyperlinks and Text Markup Language", 
+                    "Hyper Tool Markup Language"
+                ],
+                answer: "Hyper Text Markup Language"
+            },
+            {
+                question: "Which tag is used to create a hyperlink in HTML?",
+                options: ["<a>", "<link>", "<href>", "<button>"],
+                answer: "<a>"
+            },
+            {
+                question: "Which property is used to change the background color in CSS?",
+                options: ["color", "bgcolor", "background-color", "background"],
+                answer: "background-color"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let highScore = 0;
+
+        const quizContainer = document.getElementById('quiz');
+        const resultsContainer = document.getElementById('results');
+        const submitButton = document.getElementById('submit');
+        const startButton = document.getElementById('start-quiz');
+        const currentScoreDisplay = document.getElementById('current-score');
+        const highScoreDisplay = document.getElementById('high-score');
+
+        function startQuiz() {
+            score = 0;
+            currentQuestion = 0;
+            resultsContainer.textContent = '';
+            updateScoreDisplay();
+            generateQuiz();
+            quizContainer.style.display = 'block';
+            submitButton.style.display = 'block';
+            startButton.style.display = 'none';
+        }
+
+        function generateQuiz() {
+            const quizQuestion = document.createElement('div');
+            quizQuestion.className = 'question';
+
+            const questionText = document.createElement('h3');
+            questionText.textContent = quizData[currentQuestion].question;
+            quizQuestion.appendChild(questionText);
+
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'options-container';
+
+            quizData[currentQuestion].options.forEach(option => {
+                const label = document.createElement('label');
+                label.className = 'option';
+
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.name = 'quiz';
+                input.value = option;
+
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(option));
+                optionsContainer.appendChild(label);
+            });
+
+            quizContainer.innerHTML = '';
+            quizContainer.appendChild(quizQuestion);
+            quizContainer.appendChild(optionsContainer);
+        }
+
+        function evaluateAnswer() {
+            const selectedOption = document.querySelector('input[name="quiz"]:checked');
+            if (selectedOption) {
+                const answer = selectedOption.value;
+                if (answer === quizData[currentQuestion].answer) {
+                    score++;
+                }
+            }
+            updateScoreDisplay();
+        }
+
+        function updateScoreDisplay() {
+            currentScoreDisplay.textContent = `Current Score: ${score}`;
+            if (score > highScore) {
+                highScore = score;
+                highScoreDisplay.textContent = `Highest Score: ${highScore}`;
+            }
+        }
+
+        function showResults() {
+            resultsContainer.textContent = `You scored ${score} out of ${quizData.length}`;
+            quizContainer.style.display = 'none';
+            submitButton.style.display = 'none';
+            startButton.style.display = 'block';
+        }
+
+        startButton.addEventListener('click', startQuiz);
+
+        submitButton.addEventListener('click', () => {
+            evaluateAnswer();
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                generateQuiz();
+            } else {
+                showResults();
+            }
+        });
+    </script>
+</body>
+</html>
